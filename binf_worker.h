@@ -9,6 +9,7 @@ class binf_worker{
     int size;
 public:
     binf_worker();
+    int get_size();
     void write_to_file(patientInfo&);
     void remove_from_file(unsigned int);
     std::string find_in_file(unsigned int);

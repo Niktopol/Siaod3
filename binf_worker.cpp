@@ -3,6 +3,9 @@ binf_worker::binf_worker(){
     file.open("bininput.bin", std::ios::trunc | std::ios::in | std::ios::out | std::ios::binary);
     size = 0;
 }
+int binf_worker::get_size(){
+    return size;
+}
 void binf_worker::write_to_file(patientInfo& info){
     if (file.is_open()){
         file.seekp(0, std::ios::end);
@@ -33,7 +36,7 @@ void binf_worker::remove_from_file(unsigned int key){
 }
 std::string binf_worker::find_in_file(unsigned int key){
     std::string record;
-    if(file.is_open() && key  <= (size-1)){
+    if(file.is_open() && key <= (size-1)){
         patientInfo info;
         file.seekg(key*sizeof(info), std::ios::beg);
         file.read(reinterpret_cast<char*>(&info), sizeof(patientInfo));

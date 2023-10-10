@@ -10,13 +10,18 @@ patient::patient(){
     this->cardNum = 0;
     this->ind = -1;
 }
-patientInfo::patientInfo(){}
-patientInfo::patientInfo(const patientInfo& info){
-    this->cardNum = info.cardNum;
-    for (int i = 0; i < 8; i++){
-        this->illness[i] = info.illness[i];
+void patientInfo::set_fields(int cardNum, std::string illness, std::string doctor){
+    this->cardNum = cardNum;
+    for (int i = 0; i < (illness.size() < 7? illness.size() : 7); i++){
+        this->illness[i] = illness.at(i);
+        if (i+1 == (illness.size() < 7? illness.size() : 7)){
+            this->illness[i+1] = '\0';
+        }
     }
-    for (int i = 0; i < 16; i++){
-        this->doctor[i] = info.doctor[i];
+    for (int i = 0; i < (doctor.size() < 15? doctor.size() : 15); i++){
+        this->doctor[i] = doctor.at(i);
+        if (i+1 == (doctor.size() < 15? doctor.size() : 15)){
+            this->doctor[i+1] = '\0';
+        }
     }
 }

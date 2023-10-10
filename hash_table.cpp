@@ -13,7 +13,7 @@ void hash_table::re_hash(){
 void hash_table::push_key(patientInfo &info, int ind){
     table[info.cardNum % size].push_front(patient(info.cardNum, ind));
     ++records;
-    if ((records / size) >= 0.75){
+    while ((records / size) >= 0.75){
         this->re_hash();
     }
 }
