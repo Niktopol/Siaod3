@@ -60,6 +60,7 @@ struct hashTable{
             if (i.cardNum == key){
                 int ind = i.ind;
                 table[key%size].remove(i);
+                --records;
                 return ind;
             }
         }
@@ -69,7 +70,7 @@ struct hashTable{
         for (int i = 0; i < size; i++){
             std::cout << "Row " << i << ": ";
             for(patient j : table[i]){
-                std::cout << j.ind << " ";
+                std::cout << "Index: " << j.ind << " Key: " << j.cardNum;
             }
             std::cout << std::endl;
         }
@@ -111,39 +112,32 @@ void genBinFile(int size){
     }
     binfout.close();
     fin.close();
-}/*
-void reHash(hashTable &table){
-    std::forward_list<patient> *newTable = new std::forward_list<patient>[table.size*2];
-    for(int i = 0; i < table.size; i++){
-        for(patient j: table.table[i]){
-            newTable[j.cardNum%(table.size*2)].push_front(patient(j.cardNum, j.ind));
-        }
-    }
-    delete [] table.table;
-    table.size *= 2;
-    table.table = newTable;
 }
-void makeTable(hashTable &table, std::ifstream &file, int size){
-    patientInfo info;
-    for(int i = 0; i < size; i++){
-        file.read(reinterpret_cast<char*>(&info), sizeof(info));
-        table.table[info.cardNum%table.size].push_front(patient(info.cardNum, i));
-        if(((i+1)/table.size) >= 0.75){
-            reHash(table);
-        }
-    }
-}
-*/
-void remove_from_file(int key, hashTable &table, std::fstream &file){
+void remove_from_file(int key, hashTable &table, std::ifstream &file){
     int toremove = table.remove(key);
     if(toremove >= 0){
-        //
+        file.seekg(0, std::ios::beg);
+        std::ofstream ofs("temp.bin", std::ios::out | std::ios::binary); 
+        patientInfo info;
+        for (int i = 0; i < (table.records+1); i++){
+            if (i != toremove){
+                file.read(reinterpret_cast<char*>(&info), sizeof(patientInfo));
+                ofs.write(reinterpret_cast<char*>(&info), sizeof(patientInfo));
+            }else{
+                file.seekg(sizeof(patientInfo), std::ios::cur);
+            }
+        }
+        ofs.close(); 
+        file.close();
+        remove("bininput.bin");
+        rename("temp.bin", "bininput.bin"); 
+        file.open("bininput.bin", std::ios::in | std::ios::binary);
     }
 }
-void make_table(hashTable &table, std::fstream &file, int size){
+void make_table_from_file(hashTable &table, std::ifstream &file, int size){
     patientInfo info;
     for(int i = 0; i < size; i++){
-        file.read(reinterpret_cast<char*>(&info), sizeof(info));
+        file.read(reinterpret_cast<char*>(&info), sizeof(patientInfo));
         table.push_key(info, i);
     }
 }
@@ -156,12 +150,12 @@ int main(){
     genTxtFile(size);
     genBinFile(size);
 
-    std::fstream binf("bininput.bin", std::ios::in | std::ios::out | std::ios::binary);
+    std::ifstream binf("bininput.bin", std::ios::in | std::ios::binary);
     hashTable table;
     auto begin = std::chrono::high_resolution_clock::now();
-    make_table(table, binf, size);
+    make_table_from_file(table, binf, size);
     std::cout << "Finished in: " << std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - begin).count() << " ns\n";
+    remove_from_file(size, table, binf);
     binf.close();
-    table.print_table();
     return 0;
 }
