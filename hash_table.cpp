@@ -1,11 +1,8 @@
 #include "hash_table.h"
-int hash_table::get_records(){
-    return records;
-}
 void hash_table::re_hash(){
     std::forward_list<patient> *newTable = new std::forward_list<patient>[size * 2];
     for (int i = 0; i < size; i++){
-        for (patient j : table[i]){
+        for (patient& j : table[i]){
             newTable[j.cardNum % (size * 2)].push_front(patient(j.cardNum, j.ind));
         }
     }
@@ -21,7 +18,7 @@ void hash_table::push_key(patientInfo &info, int ind){
     }
 }
 int hash_table::find(int key){
-    for (patient i : table[key % size]){
+    for (patient& i : table[key % size]){
         if (i.cardNum == key){
             return i.ind;
         }
@@ -33,6 +30,13 @@ int hash_table::remove(int key){
         if (i.cardNum == key){
             int ind = i.ind;
             table[key % size].remove(i);
+            for (int j = 0; j < size; j++){
+                for (patient& g : table[j]){
+                    if (g.ind > ind){
+                        g.ind -= 1;
+                    }
+                }
+            }   
             return ind;
         }
     }
@@ -41,8 +45,8 @@ int hash_table::remove(int key){
 void hash_table::print_table(){
     for (int i = 0; i < size; i++){
         std::cout << "Row " << i << ": ";
-        for (patient j : table[i]){
-            std::cout << j.ind << " ";
+        for (patient& j : table[i]){
+            std::cout << j.ind << ' ';
         }
         std::cout << std::endl;
     }

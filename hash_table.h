@@ -8,7 +8,6 @@ class hash_table{
     int records;
     std::forward_list<patient> *table;
 public:
-    int get_records();
     void re_hash();
     void push_key(patientInfo&, int);
     int find(int);

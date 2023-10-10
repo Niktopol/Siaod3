@@ -11,5 +11,7 @@ struct patientInfo{
     int cardNum;
     char illness[8];
     char doctor[16];
+    patientInfo();
+    patientInfo(const patientInfo&);
 };
 #endif
